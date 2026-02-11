@@ -1,0 +1,66 @@
+cmake_minimum_required(VERSION 3.15)
+project(ParallelProgramming VERSION 1.0.0 LANGUAGES CXX C)
+
+# Установка стандартов C++ и C
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
+# Опции для macOS (раскомментируйте при необходимости)
+# set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15")
+# set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Architectures")
+
+# Имя исполняемого файла
+set(TARGET_NAME parallel_programming)
+
+# Автоматический сбор всех исходников рекурсивно
+file(GLOB_RECURSE SOURCES 
+    "*.cpp" "*.c"
+    "utils/*.cpp" "utils/*.c"
+    "models/*.cpp" "models/*.c"
+    "logger/*.cpp" "logger/*.c"
+)
+
+# Исключаем ненужные файлы (DS_Store, системные)
+list(REMOVE_ITEM SOURCES ${CMAKE_SOURCE_DIR}/.DS_Store)
+
+# Добавляем исполняемый файл
+add_executable(${TARGET_NAME} ${SOURCES})
+
+# Включаем все поддиректории для заголовочных файлов
+target_include_directories(${TARGET_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/models
+    ${CMAKE_CURRENT_SOURCE_DIR}/logger
+)
+
+# Подключаем необходимые библиотеки для параллельного программирования
+find_package(Threads REQUIRED)
+target_link_libraries(${TARGET_NAME} PRIVATE Threads::Threads)
+
+# Дополнительные опции для параллельного программирования
+if(APPLE)
+    target_compile_options(${TARGET_NAME} PRIVATE -pthread)
+elseif(UNIX)
+    target_compile_options(${TARGET_NAME} PRIVATE -pthread)
+endif()
+
+# Опции компиляции
+target_compile_options(${TARGET_NAME} PRIVATE
+    -Wall -Wextra -Wpedantic
+    $<$<CONFIG:RELEASE>:-O3 -DNDEBUG>
+    $<$<CONFIG:DEBUG>:-g -O0 -DDEBUG>
+)
+
+# Настройка путей для выходных файлов
+set_target_properties(${TARGET_NAME} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+)
+
+# Сообщение о успешной конфигурации
+message(STATUS "Project ${PROJECT_NAME} configured with target: ${TARGET_NAME}")
+message(STATUS "Found source files: ${SOURCES}")

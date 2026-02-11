@@ -27,7 +27,7 @@ void cleanup(int signum) {
     }
 
     if(semid != -1) {
-        destroy_semaphores(semid);
+        destroy_semaphore(semid);
     }
 
     exit(0);
@@ -55,7 +55,7 @@ int main() {
     queue->tail = 0;
     queue->count = 0;
 
-    semid = create_semaphores(sem_key, 3);
+    semid = create_semaphore(sem_key, 3);
 
     vector<thread> threads;
 

@@ -1,5 +1,5 @@
-#include "semaphore.h"
-#include "./utils/conf/config.h"
+#include "semaphores.h"
+#include "utils/conf/config.h"
 
 #include <sys/sem.h>
 #include <iostream>
@@ -33,7 +33,7 @@ int create_semaphore(key_t key, int num_sems) {
 }
 
 void semaphore_wait(int semid, int sem_num) {
-    struct sembuf op = {sem_num, -1, 0};
+    struct sembuf op = {static_cast<unsigned short>(sem_num), -1, 0};
     if (semop(semid, &op, 1) == -1) {
         perror("semop wait failed");
         exit(1);
@@ -41,7 +41,7 @@ void semaphore_wait(int semid, int sem_num) {
 }
 
 void semaphore_signal(int semid, int sem_num) {
-    struct sembuf op = {sem_num, 1, 0};
+    struct sembuf op = {static_cast<unsigned short>(sem_num), 1, 0};
     if (semop(semid, &op, 1) == -1) {
         perror("semop signal failed");
         exit(1);
