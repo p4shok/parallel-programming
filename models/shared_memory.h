@@ -11,9 +11,17 @@ struct SharedMemoryQueue {
     int head;
     int tail;
     int count;
+
+    bool is_empty() {
+        return count == 0;
+    }
+
+    bool is_full() {
+        return count == MAX_QUEUE_SIZE;
+    }
 };
 
 int create_shm(key_t key, size_t size);
 SharedMemoryQueue* attach_shm(int shmid);
 void detach_shm(void* ptr);
-void destroy_shared_memory(int shmid);
+void destroy_shm(int shmid);
